@@ -1,1 +1,3 @@
-import { moduleName } from "./modules/Search.js";
+import { Search } from "./modules/Search.js";
+
+new Search();
