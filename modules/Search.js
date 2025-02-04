@@ -12,6 +12,8 @@ BONUS :
 - Enregistrer les dernières recherches
 */
 
+import { Wind } from "./Wind.js"; // import fichier Wind et pas dans App pour soucis de chronologie
+
 class Search {
   constructor() {
     this.input = document.querySelector(".js-search-input");
@@ -39,7 +41,7 @@ class Search {
     if (cityData) {
       const lat = cityData.lat;
       const long = cityData.lng;
-      console.log("ok");
+      new Wind(lat, long); //appel à la classe du fichier Wind grace à l'import en debut de fichier
     } else {
       alert("La ville renseigné n'existe pas");
       console.log("alerte");
