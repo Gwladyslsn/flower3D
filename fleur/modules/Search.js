@@ -50,7 +50,7 @@ class Search {
 
   getCities() {
     //charger mes données => fetc
-    fetch("../data/french-cities.json")
+    fetch("./data/french-cities.json")
       .then((response) => response.json())
       .then((data) => {
         this.cities = data;
