@@ -17,7 +17,6 @@ class Wind {
   init() {
     this.buildUrl();
     this.getWindData();
-    console.log("In class Wind", this.lat, this.long);
   }
 
   buildUrl() {
@@ -35,7 +34,8 @@ class Wind {
     fetch(this.url)
       .then((response) => response.json())
       .then((data) => {
-        console.log("data", data);
+        window.app.windDirection = data.current.wind_direction_10m;
+        window.app.windSpeed = data.current.wind_speed_10m;
       });
   }
 }

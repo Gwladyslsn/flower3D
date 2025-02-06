@@ -7,6 +7,10 @@ class Flower {
     this.canvasWidth = window.innerWidth;
     this.canvasHeight = window.innerHeight;
     this.flowerSize = 50;
+    this.animation = {
+      rotationX: 0,
+      rotationZ: 0,
+    };
 
     this.init();
   }
@@ -16,9 +20,12 @@ class Flower {
     this.createScene();
     this.createCamera();
     this.createRender();
+    this.createGroupFlower();
+    this.createHelper();
     this.createStem();
     this.createPistil();
     this.createPetals();
+    this.addGroupeToScene();
     this.createOrbitControls();
     this.animate();
   }
@@ -31,9 +38,9 @@ class Flower {
   createCamera() {
     const aspectRatio = this.canvasWidth / this.canvasHeight;
     this.camera = new THREE.PerspectiveCamera(45, aspectRatio, 0.1, 1000);
-    this.camera.position.x = 0;
-    this.camera.position.y = 0;
-    this.camera.position.z = 100;
+    this.camera.position.x = 25;
+    this.camera.position.y = 100;
+    this.camera.position.z = 200;
   }
 
   createRender() {
@@ -42,13 +49,24 @@ class Flower {
     this.canvas.appendChild(this.renderer.domElement);
   }
 
+  createGroupFlower() {
+    this.flowerGroup = new THREE.Group();
+  }
+
+  createHelper() {
+    // lignes helper servent à nous rendre compte des axes
+    const axesHelper = new THREE.AxesHelper(50);
+    this.flowerGroup.add(axesHelper);
+  }
+
   createStem() {
     //tige
     const geometry = new THREE.CylinderGeometry(1, 1, this.flowerSize, 32);
     const color = new THREE.Color("green");
     const material = new THREE.MeshBasicMaterial({ color: color });
     const cylinder = new THREE.Mesh(geometry, material);
-    this.scene.add(cylinder);
+    cylinder.position.y = this.flowerSize / 2;
+    this.flowerGroup.add(cylinder);
   }
 
   createPistil() {
@@ -56,8 +74,8 @@ class Flower {
     const color = new THREE.Color("yellow");
     const material = new THREE.MeshBasicMaterial({ color: color });
     const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.y = this.flowerSize / 2;
-    this.scene.add(sphere);
+    sphere.position.y = this.flowerSize;
+    this.flowerGroup.add(sphere);
   }
 
   createPetals() {
@@ -70,13 +88,17 @@ class Flower {
     const rotationX = [90, 120, 90, 60];
     for (let i = 0; i < 4; i++) {
       const torus = new THREE.Mesh(geometry, material);
-      torus.position.y = this.flowerSize / 2;
+      torus.position.y = this.flowerSize;
       torus.position.x = positionX[i];
       torus.position.z = positionZ[i];
       torus.rotation.y = THREE.MathUtils.degToRad(rotationY[i]);
       torus.rotation.x = THREE.MathUtils.degToRad(rotationX[i]);
-      this.scene.add(torus);
+      this.flowerGroup.add(torus);
     }
+  }
+
+  addGroupeToScene() {
+    this.scene.add(this.flowerGroup);
   }
   createOrbitControls() {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -84,9 +106,29 @@ class Flower {
 
   animate() {
     requestAnimationFrame(this.animate.bind(this));
-
     this.controls.update();
 
+    if (window.app.city === "") {
+      this.flowerGroup.rotation.y += 0.01;
+    } else {
+      if (window.app.resetAnimation) {
+        this.animation.rotationX = 0;
+        this.animation.rotationZ = 0;
+        window.app.resetAnimation = false;
+      } else {
+        if (this.animation.rotationX < 17 && this.animation.rotationZ < 17) {
+          const speed = 0.01 * window.app.windSpeed;
+          this.animation.rotationX += speed;
+          this.animation.rotationZ += speed;
+          this.flowerGroup.rotation.z = THREE.MathUtils.degToRad(
+            this.animation.rotationZ
+          );
+          this.flowerGroup.rotation.X = THREE.MathUtils.degToRad(
+            this.animation.rotationX
+          );
+        }
+      }
+    }
     this.renderer.render(this.scene, this.camera);
   }
 }
